@@ -1,5 +1,9 @@
 version: '3.3'
 
+networks:
+  server-backend:
+  client:
+
 services:
   # Java Spring Server
   server:
@@ -7,7 +11,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "6000:6000"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/meteo_data
       SPRING_DATASOURCE_USERNAME: root
@@ -15,6 +19,9 @@ services:
     depends_on:
       - postgres
     command: ["java", "-jar", "app.jar"]
+    networks:
+      - server-backend
+    restart: on-failure
 
   # PostgreSQL Database
   postgres:
@@ -25,11 +32,26 @@ services:
       POSTGRES_PASSWORD: root
     ports:
       - "5432:5432"
+    networks:
+      - server-backend
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
 
   # Database Management Utility
   adminer:
     image: adminer:latest
     ports:
-      - "8081:8080"
+      - "8080:8080"
     depends_on:
       - postgres
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+      ADMINER_PORT: 5432
+      ADMINER_DEFAULT_USERNAME: root
+      ADMINER_DEFAULT_PASSWORD: root
+      ADMINER_DEFAULT_DATABASE: meteo_data
+    networks:
+      - server-backend
+
+volumes:
+  postgres-data:
