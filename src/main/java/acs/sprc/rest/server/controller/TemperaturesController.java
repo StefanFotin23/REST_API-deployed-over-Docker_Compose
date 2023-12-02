@@ -7,16 +7,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/temperatures")
 public class TemperaturesController {
     @Autowired
     private TemperaturesService temperaturesService;
+    private final Logger logger = Logger.getLogger("TemperaturesController");
 
     @PostMapping
     public ResponseEntity<Long> addTemperature(@RequestBody Temperature temperature) {
         Long id = temperaturesService.addTemperature(temperature);
+        logger.info("addTemperature temperature " + temperature.toString());
         return ResponseEntity.status(201).body(id);
     }
 
@@ -27,6 +30,7 @@ public class TemperaturesController {
             @RequestParam(required = false) Date from,
             @RequestParam(required = false) Date until) {
         List<Temperature> temperatures = temperaturesService.getTemperatures(lat, lon, from, until);
+        logger.info("getTemperatures lat=" + lat + " lon=" + lon + " from=" + from + " until=" + until);
         return ResponseEntity.status(200).body(temperatures);
     }
 
@@ -36,6 +40,7 @@ public class TemperaturesController {
             @RequestParam(required = false) Date from,
             @RequestParam(required = false) Date until) {
         List<Temperature> temperatures = temperaturesService.getTemperaturesByCity(idOras, from, until);
+        logger.info("getTemperaturesByCity idOras=" + idOras + " from=" + from + " until=" + until);
         return ResponseEntity.status(200).body(temperatures);
     }
 
@@ -45,11 +50,13 @@ public class TemperaturesController {
             @RequestParam(required = false) Date from,
             @RequestParam(required = false) Date until) {
         List<Temperature> temperatures = temperaturesService.getTemperaturesByCountry(idTara, from, until);
+        logger.info("getTemperaturesByCountry idTara=" + idTara + " from=" + from + " until=" + until);
         return ResponseEntity.status(200).body(temperatures);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateTemperature(@PathVariable Long id, @RequestBody Temperature temperature) {
+        logger.info("updateTemperature id=" + id + " temperature " + temperature.toString());
         if (temperaturesService.updateTemperature(id, temperature)) {
             return ResponseEntity.status(200).build();
         } else {
@@ -59,6 +66,7 @@ public class TemperaturesController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTemperature(@PathVariable Long id) {
+        logger.info("deleteTemperature id=" + id);
         if (temperaturesService.deleteTemperature(id)) {
             return ResponseEntity.status(200).build();
         } else {

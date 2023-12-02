@@ -1,0 +1,16 @@
+# Use the official MySQL image
+FROM mysql:latest
+
+# Set environment variables for database initialization
+ENV MYSQL_DATABASE=meteo_data
+ENV MYSQL_ROOT_USER=root
+ENV MYSQL_ROOT_PASSWORD=root
+
+# Copy SQL script files into the container
+COPY ./db_init.sql /db/init.sql
+
+# Expose the port for MySQL
+EXPOSE 3306
+
+# Specify a volume for database persistence
+VOLUME /var/lib/mysql

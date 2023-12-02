@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.8'
 
 networks:
   server-backend:
@@ -9,33 +9,32 @@ services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-server
     ports:
       - "6000:6000"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/meteo_data
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/meteo_data
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
     depends_on:
-      - postgres
+      - database
     command: ["java", "-jar", "app.jar"]
     networks:
       - server-backend
     restart: on-failure
 
-  # PostgreSQL Database
-  postgres:
-    image: postgres:latest
-    environment:
-      POSTGRES_DB: meteo_data
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
+  # Database
+  database:
+    build:
+      context: .
+      dockerfile: Dockerfile-database
     ports:
-      - "5432:5432"
+      - "3306:3306"
     networks:
       - server-backend
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - database-data:/var/lib/mysql
+    command: --init-file /db/init.sql
 
   # Database Management Utility
   adminer:
@@ -43,10 +42,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - postgres
+      - database
     environment:
-      ADMINER_DEFAULT_SERVER: postgres
-      ADMINER_PORT: 5432
+      ADMINER_DEFAULT_SERVER: database
+      ADMINER_PORT: 3306
       ADMINER_DEFAULT_USERNAME: root
       ADMINER_DEFAULT_PASSWORD: root
       ADMINER_DEFAULT_DATABASE: meteo_data
@@ -54,4 +53,4 @@ services:
       - server-backend
 
 volumes:
-  postgres-data:
+  database-data:

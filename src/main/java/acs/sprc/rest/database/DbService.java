@@ -1,21 +1,23 @@
 package acs.sprc.rest.database;
 
-import acs.sprc.rest.database.service.CitiesService;
-import acs.sprc.rest.database.service.CountriesService;
-import acs.sprc.rest.database.service.TemperaturesService;
+import acs.sprc.rest.database.service.CitiesDbService;
+import acs.sprc.rest.database.service.CountriesDbService;
+import acs.sprc.rest.database.service.TemperaturesDbService;
 import acs.sprc.rest.entities.City;
 import acs.sprc.rest.entities.Country;
 import acs.sprc.rest.entities.Temperature;
 import lombok.AllArgsConstructor;
-
+import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.List;
 
+@Component
 @AllArgsConstructor
 public class DbService {
-    private final CitiesService citiesService;
-    private final CountriesService countriesService;
-    private final TemperaturesService temperaturesService;
+    private final DbConfig config;
+    private final CitiesDbService citiesService;
+    private final CountriesDbService countriesService;
+    private final TemperaturesDbService temperaturesService;
 
     // COUNTRY
     public Long addCountry(Country country) {
