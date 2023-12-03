@@ -12,7 +12,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Table(name = "Temperatures", schema = "meteo_data", uniqueConstraints = @UniqueConstraint(columnNames = {"id_oras" , "timestamp"}))
+@Table(name = "temperatures", schema = "meteo_data", uniqueConstraints = @UniqueConstraint(columnNames = {"id_oras" , "timestamp"}))
 @JsonSerialize
 @JsonDeserialize
 @Entity
@@ -22,11 +22,9 @@ public class Temperature {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonProperty("idOras")
     @Column(name = "id_oras")
-    private Long id_oras;
+    private Long idOras;
 
-    @JsonProperty("valoare")
     @Column(name = "valoare")
     private String valoare;
 

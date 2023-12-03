@@ -5,7 +5,7 @@ CREATE DATABASE IF NOT EXISTS meteo_data;
 USE meteo_data;
 
 -- Create City table
-CREATE TABLE IF NOT EXISTS meteo_data.Cities (
+CREATE TABLE IF NOT EXISTS meteo_data.cities (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     id_tara INTEGER,
     nume_oras VARCHAR(255) NOT NULL,
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS meteo_data.Cities (
 );
 
 -- Create Country table
-CREATE TABLE IF NOT EXISTS meteo_data.Countries (
+CREATE TABLE IF NOT EXISTS meteo_data.countries (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     nume_tara VARCHAR(255) UNIQUE,
     latitudine DOUBLE,
@@ -23,11 +23,11 @@ CREATE TABLE IF NOT EXISTS meteo_data.Countries (
 );
 
 -- Create Temperature table
-CREATE TABLE IF NOT EXISTS meteo_data.Temperatures (
+CREATE TABLE IF NOT EXISTS meteo_data.temperatures (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     id_oras BIGINT,
     valoare VARCHAR(255),
     timestamp TIMESTAMP,
-    FOREIGN KEY (id_oras) REFERENCES meteo_data.Cities (id),
+    FOREIGN KEY (id_oras) REFERENCES meteo_data.cities (id),
     UNIQUE (id_oras, timestamp)
 );

@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Table(name = "Cities", schema = "meteo_data", uniqueConstraints = @UniqueConstraint(columnNames = {"id_tara" , "nume_oras"}))
+@Table(name = "cities", schema = "meteo_data", uniqueConstraints = @UniqueConstraint(columnNames = {"id_tara" , "nume_oras"}))
 @JsonSerialize
 @JsonDeserialize
 @Entity
@@ -21,19 +21,15 @@ public class City {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonProperty("idTara")
     @Column(name = "id_tara")
-    private Long id_tara;
+    private Long idTara;
 
-    @JsonProperty("nume")
     @Column(name = "nume_oras")
-    private String nume_oras;
+    private String nume;
 
-    @JsonProperty("lat")
     @Column(name = "latitudine")
-    private Double latitudine;
+    private Double lat;
 
-    @JsonProperty("lon")
     @Column(name = "longitudine")
-    private Double longitudine;
+    private Double lon;
 }

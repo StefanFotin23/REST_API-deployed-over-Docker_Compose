@@ -2,9 +2,13 @@ package acs.sprc.rest.server.controller;
 
 import acs.sprc.rest.entities.Temperature;
 import acs.sprc.rest.server.service.TemperaturesService;
+import acs.sprc.rest.utility.IdResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -15,62 +19,118 @@ public class TemperaturesController {
     @Autowired
     private TemperaturesService temperaturesService;
     private final Logger logger = Logger.getLogger("TemperaturesController");
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yy-MM-dd");
 
     @PostMapping
-    public ResponseEntity<Long> addTemperature(@RequestBody Temperature temperature) {
-        Long id = temperaturesService.addTemperature(temperature);
-        logger.info("addTemperature temperature " + temperature.toString());
-        return ResponseEntity.status(201).body(id);
+    public ResponseEntity<IdResponse> addTemperature(@RequestBody Temperature temperature) {
+        Long id = 0L;
+                ResponseEntity<IdResponse> response;
+        try {
+            id = temperaturesService.addTemperature(temperature);
+        } catch (Exception e) {
+            response = ResponseEntity.badRequest().build();
+            logger.info(e.toString());
+            logger.info("addTemperature " + temperature + " | response " + response);
+            return response;
+        }
+        response = ResponseEntity.status(201).body(new IdResponse(id));
+        logger.info("addTemperature " + temperature + " | response " + response);
+        return response;
     }
 
     @GetMapping
     public ResponseEntity<List<Temperature>> getTemperatures(
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
-            @RequestParam(required = false) Date from,
-            @RequestParam(required = false) Date until) {
-        List<Temperature> temperatures = temperaturesService.getTemperatures(lat, lon, from, until);
-        logger.info("getTemperatures lat=" + lat + " lon=" + lon + " from=" + from + " until=" + until);
-        return ResponseEntity.status(200).body(temperatures);
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String until) {
+
+        Date fromDate = null;
+        Date untilDate = null;
+        try {
+            if (from != null) {
+                fromDate = dateFormatter.parse(from);
+            }
+            if (until != null) {
+                untilDate = dateFormatter.parse(until);
+            }
+        } catch (ParseException e) {
+            logger.info(e.toString());
+        }
+
+        List<Temperature> temperatures = temperaturesService.getTemperatures(lat, lon, fromDate, untilDate);
+        ResponseEntity<List<Temperature>> response = ResponseEntity.status(200).body(temperatures);
+        logger.info("getTemperatures lat=" + lat + " lon=" + lon + " from=" + from + " until=" + until + " | response " + response);
+        return response;
     }
 
     @GetMapping("/cities/{idOras}")
     public ResponseEntity<List<Temperature>> getTemperaturesByCity(
             @PathVariable Long idOras,
-            @RequestParam(required = false) Date from,
-            @RequestParam(required = false) Date until) {
-        List<Temperature> temperatures = temperaturesService.getTemperaturesByCity(idOras, from, until);
-        logger.info("getTemperaturesByCity idOras=" + idOras + " from=" + from + " until=" + until);
-        return ResponseEntity.status(200).body(temperatures);
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String until) {
+        Date fromDate = null;
+        Date untilDate = null;
+        try {
+            if (from != null) {
+                fromDate = dateFormatter.parse(from);
+            }
+            if (until != null) {
+                untilDate = dateFormatter.parse(until);
+            }
+        } catch (ParseException e) {
+            logger.info(e.toString());
+        }
+        List<Temperature> temperatures = temperaturesService.getTemperaturesByCity(idOras, fromDate, untilDate);
+        ResponseEntity<List<Temperature>> response = ResponseEntity.status(200).body(temperatures);
+        logger.info("getTemperaturesByCity idOras=" + idOras + " from=" + from + " until=" + until + " | response " + response);
+        return response;
     }
 
     @GetMapping("/countries/{idTara}")
     public ResponseEntity<List<Temperature>> getTemperaturesByCountry(
             @PathVariable Long idTara,
-            @RequestParam(required = false) Date from,
-            @RequestParam(required = false) Date until) {
-        List<Temperature> temperatures = temperaturesService.getTemperaturesByCountry(idTara, from, until);
-        logger.info("getTemperaturesByCountry idTara=" + idTara + " from=" + from + " until=" + until);
-        return ResponseEntity.status(200).body(temperatures);
+            @RequestParam(required = false) String from,
+            @RequestParam(required = false) String until) {
+        Date fromDate = null;
+        Date untilDate = null;
+        try {
+            if (from != null) {
+                fromDate = dateFormatter.parse(from);
+            }
+            if (until != null) {
+                untilDate = dateFormatter.parse(until);
+            }
+        } catch (ParseException e) {
+            logger.info(e.toString());
+        }
+        List<Temperature> temperatures = temperaturesService.getTemperaturesByCountry(idTara, fromDate, untilDate);
+        ResponseEntity<List<Temperature>> response = ResponseEntity.status(200).body(temperatures);
+        logger.info("getTemperaturesByCountry idTara=" + idTara + " from=" + from + " until=" + until + " | response " + response);
+        return response;
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateTemperature(@PathVariable Long id, @RequestBody Temperature temperature) {
-        logger.info("updateTemperature id=" + id + " temperature " + temperature.toString());
+        ResponseEntity<Void> response;
         if (temperaturesService.updateTemperature(id, temperature)) {
-            return ResponseEntity.status(200).build();
+            response = ResponseEntity.status(200).build();
         } else {
-            return ResponseEntity.status(404).build();
+            response = ResponseEntity.status(404).build();
         }
+        logger.info("updateTemperature id=" + id + " " + temperature + " | response " + response);
+        return response;
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTemperature(@PathVariable Long id) {
-        logger.info("deleteTemperature id=" + id);
+        ResponseEntity<Void> response;
         if (temperaturesService.deleteTemperature(id)) {
-            return ResponseEntity.status(200).build();
+            response = ResponseEntity.status(200).build();
         } else {
-            return ResponseEntity.status(404).build();
+            response = ResponseEntity.status(404).build();
         }
+        logger.info("deleteTemperature id=" + id + " | response " + response);
+        return response;
     }
 }

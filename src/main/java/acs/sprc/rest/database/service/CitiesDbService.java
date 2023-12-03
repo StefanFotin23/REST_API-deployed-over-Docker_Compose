@@ -5,7 +5,6 @@ import acs.sprc.rest.entities.City;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -18,7 +17,7 @@ public class CitiesDbService {
     private final Logger logger = Logger.getLogger("CitiesDbService");
 
     public Long addCity(City city) {
-        logger.info("addCity city" + city.toString());
+        logger.info("addCity " + city);
         City savedCity = repository.save(city);
         return savedCity.getId();
     }
@@ -30,20 +29,21 @@ public class CitiesDbService {
 
     public List<City> getCitiesByCountry(Long idTara) {
         logger.info("getCitiesByCountry idTara=" + idTara);
-        List<City> citiesByCountry = new ArrayList<>();
         List<City> cities = getAllCities();
-
         for (City city : cities) {
-            if (city.getId_tara().equals(idTara)) {
-                citiesByCountry.add(city);
+            if (city.getIdTara() != null) {
+                if (!city.getIdTara().equals(idTara)) {
+                    cities.remove(city);
+                }
+            } else {
+                cities.remove(city);
             }
         }
-
-        return citiesByCountry;
+        return cities;
     }
 
     public boolean updateCity(Long id, City updatedCity) {
-        logger.info("updateCity id=" + id + " city " + updatedCity);
+        logger.info("updateCity id=" + id + " " + updatedCity);
         Optional<City> existingCity = repository.findById(id);
         if (existingCity.isPresent()) {
             repository.save(updatedCity);

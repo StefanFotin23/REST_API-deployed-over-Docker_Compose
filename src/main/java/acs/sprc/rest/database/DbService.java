@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Component
 @AllArgsConstructor
@@ -18,6 +19,7 @@ public class DbService {
     private final CitiesDbService citiesService;
     private final CountriesDbService countriesService;
     private final TemperaturesDbService temperaturesService;
+    private final Logger logger = Logger.getLogger("DbService");
 
     // COUNTRY
     public Long addCountry(Country country) {
@@ -63,7 +65,18 @@ public class DbService {
     }
 
     public List<Temperature> getTemperatures(Double lat, Double lon, Date from, Date until) {
-        return temperaturesService.getTemperatures(lat, lon, from, until);
+        logger.info("getTemperatures lat=" + lat + " lon=" + lon + " from=" + from + " until=" + until);
+        List<City> cities = citiesService.getAllCities();
+        for (City city : cities) {
+            // Iterate through all cities
+            if (!city.getLat().equals(lat) ||
+                !city.getLon().equals(lon)) {
+                // Remove the city that is not in the correct coordinates
+                cities.remove(city);
+            }
+        }
+
+        return temperaturesService.getTemperaturesByDate(from, until, getTemperaturesFromCities(cities));
     }
 
     public List<Temperature> getTemperaturesByCity(Long idOras, Date from, Date until) {
@@ -71,7 +84,17 @@ public class DbService {
     }
 
     public List<Temperature> getTemperaturesByCountry(Long idTara, Date from, Date until) {
-        return temperaturesService.getTemperaturesByCountry(idTara, from, until);
+        logger.info("getTemperaturesByCountry idTara=" + idTara + " from=" + from + " until=" + until);
+        List<City> cities = citiesService.getAllCities();
+        for (City city : cities) {
+            // Iterate through all cities
+            if (!city.getIdTara().equals(idTara)) {
+                // Remove the city that is not in the correct country
+                cities.remove(city);
+            }
+        }
+
+        return temperaturesService.getTemperaturesByDate(from, until, getTemperaturesFromCities(cities));
     }
 
     public boolean updateTemperature(Long id, Temperature temperature) {
@@ -80,5 +103,26 @@ public class DbService {
 
     public boolean deleteTemperature(Long id) {
         return temperaturesService.deleteTemperature(id);
+    }
+
+    public List<Temperature> getTemperaturesFromCities(List<City> cities) {
+        List<Temperature> temperatures = temperaturesService.getAllTemperatures();
+        for (Temperature temperature : temperatures) {
+            // Iterate through all temperatures
+            boolean idFound = false;
+            for (City city : cities) {
+                // Iterate through all cities
+                if (temperature.getIdOras().equals(city.getId())) {
+                    // if the temperature's cityId is found
+                    idFound = true;
+                    break;
+                }
+            }
+            if (!idFound) {
+                // Remove the temperature that is not from a city with correct coordinates
+                temperatures.remove(temperature);
+            }
+        }
+        return temperatures;
     }
 }
