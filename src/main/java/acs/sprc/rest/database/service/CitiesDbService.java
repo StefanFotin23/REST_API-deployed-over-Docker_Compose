@@ -5,6 +5,8 @@ import acs.sprc.rest.entities.City;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -29,17 +31,17 @@ public class CitiesDbService {
 
     public List<City> getCitiesByCountry(Long idTara) {
         logger.info("getCitiesByCountry idTara=" + idTara);
-        List<City> cities = getAllCities();
-        for (City city : cities) {
+        List<City> allCities = getAllCities();
+        List<City> filteredCities = new ArrayList<>();
+
+        for (City city : allCities) {
             if (city.getIdTara() != null) {
-                if (!city.getIdTara().equals(idTara)) {
-                    cities.remove(city);
+                if (city.getIdTara().equals(idTara)) {
+                    filteredCities.add(city);
                 }
-            } else {
-                cities.remove(city);
             }
         }
-        return cities;
+        return filteredCities;
     }
 
     public boolean updateCity(Long id, City updatedCity) {
