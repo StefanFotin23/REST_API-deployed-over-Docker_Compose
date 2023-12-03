@@ -49,6 +49,11 @@ public class TemperaturesDbService {
 
         temperaturesStream = temperaturesStream.filter(temperature -> temperature.getIdOras().equals(idOras));
 
+        temperaturesStream = temperaturesStream.filter(temperature ->
+                temperature.getIdOras() != null &&
+                temperature.getIdOras().equals(idOras)
+        );
+
         if (from != null) {
             temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().after(from));
         }

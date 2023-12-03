@@ -69,13 +69,27 @@ public class DbService {
         List<City> cities = citiesService.getAllCities();
         for (City city : cities) {
             // Iterate through all cities
-            if (!city.getLat().equals(lat) ||
-                !city.getLon().equals(lon)) {
-                // Remove the city that is not in the correct coordinates
-                cities.remove(city);
+            if (lat != null) {
+                if (city.getLat() != null) {
+                    if (!city.getLat().equals(lat)) {
+                        // Remove the city that is not in the correct coordinates
+                        cities.remove(city);
+                    }
+                } else {
+                    cities.remove(city);
+                }
+            }
+            if (lon != null) {
+                if (city.getLon() != null) {
+                    if (!city.getLon().equals(lon)) {
+                        // Remove the city that is not in the correct coordinates
+                        cities.remove(city);
+                    }
+                } else {
+                    cities.remove(city);
+                }
             }
         }
-
         return temperaturesService.getTemperaturesByDate(from, until, getTemperaturesFromCities(cities));
     }
 
@@ -88,12 +102,16 @@ public class DbService {
         List<City> cities = citiesService.getAllCities();
         for (City city : cities) {
             // Iterate through all cities
-            if (!city.getIdTara().equals(idTara)) {
-                // Remove the city that is not in the correct country
+            if (city.getIdTara() != null) {
+                if (!city.getIdTara().equals(idTara)) {
+                    // Remove the city that is not in the correct country
+                    cities.remove(city);
+                }
+            } else {
+                // if the city has idTara null, we remove it
                 cities.remove(city);
             }
         }
-
         return temperaturesService.getTemperaturesByDate(from, until, getTemperaturesFromCities(cities));
     }
 
@@ -112,9 +130,15 @@ public class DbService {
             boolean idFound = false;
             for (City city : cities) {
                 // Iterate through all cities
-                if (temperature.getIdOras().equals(city.getId())) {
-                    // if the temperature's cityId is found
-                    idFound = true;
+                if (temperature.getIdOras() != null) {
+                    if (temperature.getIdOras().equals(city.getId())) {
+                        // if the temperature's cityId is found
+                        idFound = true;
+                        break;
+                    }
+                } else {
+                    // if temperature has null city, we remove it
+                    temperatures.remove(temperature);
                     break;
                 }
             }
