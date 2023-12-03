@@ -47,8 +47,6 @@ public class TemperaturesDbService {
         List<Temperature> temperatures = repository.findAll();
         Stream<Temperature> temperaturesStream = temperatures.stream();
 
-        temperaturesStream = temperaturesStream.filter(temperature -> temperature.getIdOras().equals(idOras));
-
         temperaturesStream = temperaturesStream.filter(temperature ->
                 temperature.getIdOras() != null &&
                 temperature.getIdOras().equals(idOras)

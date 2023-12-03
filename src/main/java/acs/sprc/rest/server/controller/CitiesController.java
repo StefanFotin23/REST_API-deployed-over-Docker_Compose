@@ -61,7 +61,7 @@ public class CitiesController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updateCity(@PathVariable Long id, @RequestBody City city) {
-        boolean updated = false;
+        boolean updated;
         ResponseEntity<Void> response;
         try {
             updated = citiesService.updateCity(id, city);
@@ -76,7 +76,7 @@ public class CitiesController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCity(@PathVariable Long id) {
-        boolean deleted = false;
+        boolean deleted;
         ResponseEntity<Void> response;
         try {
             deleted = citiesService.deleteCity(id);
