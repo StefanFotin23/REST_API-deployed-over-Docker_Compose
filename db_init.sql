@@ -6,7 +6,7 @@ USE meteo_data;
 
 -- Create City table
 CREATE TABLE IF NOT EXISTS meteo_data.cities (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     id_tara INTEGER,
     nume_oras VARCHAR(255) NOT NULL,
     latitudine DOUBLE,
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS meteo_data.cities (
 
 -- Create Country table
 CREATE TABLE IF NOT EXISTS meteo_data.countries (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     nume_tara VARCHAR(255) UNIQUE,
     latitudine DOUBLE,
     longitudine DOUBLE
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS meteo_data.countries (
 
 -- Create Temperature table
 CREATE TABLE IF NOT EXISTS meteo_data.temperatures (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT PRIMARY KEY,
     id_oras BIGINT,
     valoare VARCHAR(255),
     timestamp TIMESTAMP,

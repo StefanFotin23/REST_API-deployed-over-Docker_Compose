@@ -8,6 +8,7 @@ import acs.sprc.rest.entities.Country;
 import acs.sprc.rest.entities.Temperature;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -64,7 +65,7 @@ public class DbService {
         return temperaturesService.addTemperature(temperature);
     }
 
-    public List<Temperature> getTemperatures(Double lat, Double lon, String from, String until) {
+    public List<Temperature> getTemperatures(Double lat, Double lon, LocalDate from, LocalDate until) {
         logger.info("getTemperatures lat=" + lat + " lon=" + lon + " from=" + from + " until=" + until);
         List<City> cities = citiesService.getAllCities();
         List<City> filteredCities = new ArrayList<>();
@@ -110,11 +111,11 @@ public class DbService {
         return temperaturesService.getTemperaturesByDate(from, until, getTemperaturesFromCities(filteredCities));
     }
 
-    public List<Temperature> getTemperaturesByCity(Long idOras, String from, String until) {
+    public List<Temperature> getTemperaturesByCity(Long idOras, LocalDate from, LocalDate until) {
         return temperaturesService.getTemperaturesByCity(idOras, from, until);
     }
 
-    public List<Temperature> getTemperaturesByCountry(Long idTara, String from, String until) {
+    public List<Temperature> getTemperaturesByCountry(Long idTara, LocalDate from, LocalDate until) {
         logger.info("getTemperaturesByCountry idTara=" + idTara + " from=" + from + " until=" + until);
         List<City> cities = citiesService.getAllCities();
         List<City> filteredCities = new ArrayList<>();

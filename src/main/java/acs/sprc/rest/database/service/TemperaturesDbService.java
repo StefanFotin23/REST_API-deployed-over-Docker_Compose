@@ -5,7 +5,6 @@ import acs.sprc.rest.entities.Temperature;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +23,7 @@ public class TemperaturesDbService {
         try {
             Long id = (long) (getEntitiesCounterFromDb() + 1);
             temperature.setId(id);
+            temperature.setTimestamp(LocalDate.now());
             Temperature savedTemperature = repository.save(temperature);
             return savedTemperature.getId();
         } catch (Exception e) {
@@ -32,22 +32,22 @@ public class TemperaturesDbService {
         }
     }
 
-    public List<Temperature> getTemperaturesByDate(String from, String until, List<Temperature> temperatures) {
+    public List<Temperature> getTemperaturesByDate(LocalDate from, LocalDate until, List<Temperature> temperatures) {
 
         Stream<Temperature> temperaturesStream = temperatures.stream();
 
         if (from != null) {
-            temperaturesStream = temperaturesStream.filter(temperature -> dateAfter(temperature.getTimestamp(), from));
+            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().isAfter(from));
         }
 
         if (until != null) {
-            temperaturesStream = temperaturesStream.filter(temperature -> dateBefore(temperature.getTimestamp(), until));
+            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().isBefore(until));
         }
 
         return temperaturesStream.toList();
     }
 
-    public List<Temperature> getTemperaturesByCity(Long idOras, String from, String until) {
+    public List<Temperature> getTemperaturesByCity(Long idOras, LocalDate from, LocalDate until) {
         logger.info("getTemperaturesByCity idOras=" + idOras + " from=" + from + " until=" + until);
         List<Temperature> temperatures = repository.findAll();
         Stream<Temperature> temperaturesStream = temperatures.stream();
@@ -58,11 +58,11 @@ public class TemperaturesDbService {
         );
 
         if (from != null) {
-            temperaturesStream = temperaturesStream.filter(temperature -> dateAfter(temperature.getTimestamp(), from));
+            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().isAfter(from));
         }
 
         if (until != null) {
-            temperaturesStream = temperaturesStream.filter(temperature -> dateBefore(temperature.getTimestamp(), until));
+            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().isBefore(until));
         }
 
         return temperaturesStream.toList();
@@ -103,23 +103,5 @@ public class TemperaturesDbService {
 
     private int getEntitiesCounterFromDb() {
         return getAllTemperatures().size();
-    }
-
-    // This function gets 2 Strings in format "yyyy-MM-dd" and returns true / false
-    // if first date is AFTER second date chronologically
-    private boolean dateAfter(String first, String second) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date1 = LocalDate.parse(first, formatter);
-        LocalDate date2 = LocalDate.parse(second, formatter);
-        return date1.isAfter(date2);
-    }
-
-    // This function gets 2 Strings in format "yyyy-MM-dd" and returns true / false
-    // if first date is BEFORE second date chronologically
-    private boolean dateBefore(String first, String second) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate date1 = LocalDate.parse(first, formatter);
-        LocalDate date2 = LocalDate.parse(second, formatter);
-        return date1.isBefore(date2);
     }
 }
