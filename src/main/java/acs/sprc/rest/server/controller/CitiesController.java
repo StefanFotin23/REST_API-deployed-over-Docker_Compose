@@ -1,13 +1,14 @@
 package acs.sprc.rest.server.controller;
 
 import acs.sprc.rest.entities.City;
+import acs.sprc.rest.entities.Country;
 import acs.sprc.rest.server.service.CitiesService;
 import acs.sprc.rest.utility.IdResponse;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +26,18 @@ public class CitiesController {
     }
 
     @PostMapping
-    public ResponseEntity<IdResponse> addCity(@RequestBody City city) {
+    public ResponseEntity<IdResponse> addCity(@Valid @RequestBody City city) {
+        if (!isValid(city)) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Long id = 0L;
         ResponseEntity<IdResponse> response;
         try {
             id = citiesService.addCity(city);
+            if (id == 0) {
+                return ResponseEntity.badRequest().build();
+            }
             response = ResponseEntity.created(URI.create("/api/cities/" + id)).body(new IdResponse(id));
         } catch (Exception e) {
             response = ResponseEntity.badRequest().build();
@@ -60,7 +68,11 @@ public class CitiesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateCity(@PathVariable Long id, @RequestBody City city) {
+    public ResponseEntity<Void> updateCity(@PathVariable Long id, @Valid @RequestBody City city) {
+        if (!isValid(city)) {
+            return ResponseEntity.badRequest().build();
+        }
+
         boolean updated;
         ResponseEntity<Void> response;
         try {
@@ -87,5 +99,9 @@ public class CitiesController {
         }
         logger.info("deleteCity id=" + id + " | response " + response);
         return response;
+    }
+
+    boolean isValid(City city) {
+        return city.getNume() != null && city.getIdTara() != null && city.getLon() != null && city.getLat() != null;
     }
 }

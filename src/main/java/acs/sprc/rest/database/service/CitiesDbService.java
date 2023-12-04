@@ -20,8 +20,15 @@ public class CitiesDbService {
 
     public Long addCity(City city) {
         logger.info("addCity " + city);
-        City savedCity = repository.save(city);
-        return savedCity.getId();
+        try {
+            Long id = (long) (getEntitiesCounterFromDb() + 1);
+            city.setId(id);
+            City savedCity = repository.save(city);
+            return savedCity.getId();
+        } catch (Exception e) {
+            logger.info(e.toString());
+            return 0L;
+        }
     }
 
     public List<City> getAllCities() {
@@ -46,6 +53,14 @@ public class CitiesDbService {
 
     public boolean updateCity(Long id, City updatedCity) {
         logger.info("updateCity id=" + id + " " + updatedCity);
+        if (updatedCity.getId() == null) {
+            return false;
+        } else {
+            if (!updatedCity.getId().equals(id)) {
+                return false;
+            }
+        }
+
         Optional<City> existingCity = repository.findById(id);
         if (existingCity.isPresent()) {
             repository.save(updatedCity);
@@ -62,5 +77,9 @@ public class CitiesDbService {
             return true;
         }
         return false;
+    }
+
+    private int getEntitiesCounterFromDb() {
+        return getAllCities().size();
     }
 }

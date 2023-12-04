@@ -8,9 +8,7 @@ import acs.sprc.rest.entities.Country;
 import acs.sprc.rest.entities.Temperature;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -66,16 +64,27 @@ public class DbService {
         return temperaturesService.addTemperature(temperature);
     }
 
-    public List<Temperature> getTemperatures(Double lat, Double lon, Date from, Date until) {
+    public List<Temperature> getTemperatures(Double lat, Double lon, String from, String until) {
         logger.info("getTemperatures lat=" + lat + " lon=" + lon + " from=" + from + " until=" + until);
         List<City> cities = citiesService.getAllCities();
+        List<City> filteredCities = new ArrayList<>();
+
+        // return all cities with correct coordinates
+        if (lat != null && lon != null) {
+            for (City city : cities) {
+                if (city.getLat() != null && city.getLon() != null) {
+                    if (city.getLat().equals(lat) && city.getLon().equals(lon)) {
+                        filteredCities.add(city);
+                    }
+                }
+            }
+            return temperaturesService.getTemperaturesByDate(from, until, getTemperaturesFromCities(filteredCities));
+        }
 
         // return all cities (no verification)
         if (lat == null && lon == null) {
             return temperaturesService.getTemperaturesByDate(from, until, getTemperaturesFromCities(cities));
         }
-
-        List<City> filteredCities = new ArrayList<>();
 
         // return all cities with correct longitude
         if (lat == null) {
@@ -101,11 +110,11 @@ public class DbService {
         return temperaturesService.getTemperaturesByDate(from, until, getTemperaturesFromCities(filteredCities));
     }
 
-    public List<Temperature> getTemperaturesByCity(Long idOras, Date from, Date until) {
+    public List<Temperature> getTemperaturesByCity(Long idOras, String from, String until) {
         return temperaturesService.getTemperaturesByCity(idOras, from, until);
     }
 
-    public List<Temperature> getTemperaturesByCountry(Long idTara, Date from, Date until) {
+    public List<Temperature> getTemperaturesByCountry(Long idTara, String from, String until) {
         logger.info("getTemperaturesByCountry idTara=" + idTara + " from=" + from + " until=" + until);
         List<City> cities = citiesService.getAllCities();
         List<City> filteredCities = new ArrayList<>();

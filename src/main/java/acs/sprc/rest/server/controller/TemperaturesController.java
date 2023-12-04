@@ -6,10 +6,7 @@ import acs.sprc.rest.utility.IdResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -19,14 +16,20 @@ public class TemperaturesController {
     @Autowired
     private TemperaturesService temperaturesService;
     private final Logger logger = Logger.getLogger("TemperaturesController");
-    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yy-MM-dd");
 
     @PostMapping
-    public ResponseEntity<IdResponse> addTemperature(@RequestBody Temperature temperature) {
+    public ResponseEntity<IdResponse> addTemperature(@Valid @RequestBody Temperature temperature) {
+        if (!isValid(temperature)) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Long id = 0L;
                 ResponseEntity<IdResponse> response;
         try {
             id = temperaturesService.addTemperature(temperature);
+            if (id == 0) {
+                return ResponseEntity.badRequest().build();
+            }
         } catch (Exception e) {
             response = ResponseEntity.badRequest().build();
             logger.info(e.toString());
@@ -44,21 +47,7 @@ public class TemperaturesController {
             @RequestParam(required = false) Double lon,
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String until) {
-
-        Date fromDate = null;
-        Date untilDate = null;
-        try {
-            if (from != null) {
-                fromDate = dateFormatter.parse(from);
-            }
-            if (until != null) {
-                untilDate = dateFormatter.parse(until);
-            }
-        } catch (ParseException e) {
-            logger.info(e.toString());
-        }
-
-        List<Temperature> temperatures = temperaturesService.getTemperatures(lat, lon, fromDate, untilDate);
+        List<Temperature> temperatures = temperaturesService.getTemperatures(lat, lon, from, until);
         ResponseEntity<List<Temperature>> response = ResponseEntity.status(200).body(temperatures);
         logger.info("getTemperatures lat=" + lat + " lon=" + lon + " from=" + from + " until=" + until + " | response " + response);
         return response;
@@ -69,19 +58,7 @@ public class TemperaturesController {
             @PathVariable Long idOras,
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String until) {
-        Date fromDate = null;
-        Date untilDate = null;
-        try {
-            if (from != null) {
-                fromDate = dateFormatter.parse(from);
-            }
-            if (until != null) {
-                untilDate = dateFormatter.parse(until);
-            }
-        } catch (ParseException e) {
-            logger.info(e.toString());
-        }
-        List<Temperature> temperatures = temperaturesService.getTemperaturesByCity(idOras, fromDate, untilDate);
+        List<Temperature> temperatures = temperaturesService.getTemperaturesByCity(idOras, from, until);
         ResponseEntity<List<Temperature>> response = ResponseEntity.status(200).body(temperatures);
         logger.info("getTemperaturesByCity idOras=" + idOras + " from=" + from + " until=" + until + " | response " + response);
         return response;
@@ -92,26 +69,18 @@ public class TemperaturesController {
             @PathVariable Long idTara,
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String until) {
-        Date fromDate = null;
-        Date untilDate = null;
-        try {
-            if (from != null) {
-                fromDate = dateFormatter.parse(from);
-            }
-            if (until != null) {
-                untilDate = dateFormatter.parse(until);
-            }
-        } catch (ParseException e) {
-            logger.info(e.toString());
-        }
-        List<Temperature> temperatures = temperaturesService.getTemperaturesByCountry(idTara, fromDate, untilDate);
+        List<Temperature> temperatures = temperaturesService.getTemperaturesByCountry(idTara, from, until);
         ResponseEntity<List<Temperature>> response = ResponseEntity.status(200).body(temperatures);
         logger.info("getTemperaturesByCountry idTara=" + idTara + " from=" + from + " until=" + until + " | response " + response);
         return response;
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateTemperature(@PathVariable Long id, @RequestBody Temperature temperature) {
+    public ResponseEntity<Void> updateTemperature(@PathVariable Long id, @Valid @RequestBody Temperature temperature) {
+        if (!isValid(temperature)) {
+            return ResponseEntity.badRequest().build();
+        }
+
         ResponseEntity<Void> response;
         if (temperaturesService.updateTemperature(id, temperature)) {
             response = ResponseEntity.status(200).build();
@@ -132,5 +101,9 @@ public class TemperaturesController {
         }
         logger.info("deleteTemperature id=" + id + " | response " + response);
         return response;
+    }
+
+    boolean isValid(Temperature temperature) {
+        return temperature.getIdOras() != null && temperature.getValoare() != null;
     }
 }

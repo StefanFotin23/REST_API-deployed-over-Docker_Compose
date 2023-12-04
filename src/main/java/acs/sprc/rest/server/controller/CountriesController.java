@@ -1,12 +1,15 @@
 package acs.sprc.rest.server.controller;
 
 import acs.sprc.rest.entities.Country;
+import acs.sprc.rest.entities.Temperature;
 import acs.sprc.rest.server.service.CountriesService;
 import acs.sprc.rest.utility.IdResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -18,11 +21,18 @@ public class CountriesController {
     private final Logger logger = Logger.getLogger("CountriesController");
 
     @PostMapping
-    public ResponseEntity<IdResponse> addCountry(@RequestBody Country country) {
+    public ResponseEntity<IdResponse> addCountry(@Valid @RequestBody Country country) {
+        if (!isValid(country)) {
+            return ResponseEntity.badRequest().build();
+        }
+
         Long id = 0L;
         ResponseEntity<IdResponse> response;
         try {
             id = countryService.addCountry(country);
+            if (id == 0) {
+                return ResponseEntity.badRequest().build();
+            }
             response = new ResponseEntity<>(new IdResponse(id), HttpStatus.CREATED);
         } catch (Exception e) {
             response = ResponseEntity.badRequest().build();
@@ -41,7 +51,11 @@ public class CountriesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateCountry(@PathVariable Long id, @RequestBody Country country) {
+    public ResponseEntity<Void> updateCountry(@PathVariable Long id, @Valid @RequestBody Country country) {
+        if (!isValid(country)) {
+            return ResponseEntity.badRequest().build();
+        }
+
         ResponseEntity<Void> response;
         boolean updated = false;
         try {
@@ -82,5 +96,9 @@ public class CountriesController {
         }
         logger.info("deleteCountry id=" + id + " | response " + response);
         return response;
+    }
+
+    boolean isValid(Country country) {
+        return country.getNume() != null && country.getLon() != null && country.getLat() != null;
     }
 }

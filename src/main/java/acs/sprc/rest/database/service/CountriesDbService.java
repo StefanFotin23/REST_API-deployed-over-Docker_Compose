@@ -17,8 +17,15 @@ public class CountriesDbService {
 
     public Long addCountry(Country country) {
         logger.info("addCountry country " + country.toString());
-        Country savedCountry = countriesRepository.save(country);
-        return savedCountry.getId();
+        try {
+            Long id = (long) (getEntitiesCounterFromDb() + 1);
+            country.setId(id);
+            Country savedCountry = countriesRepository.save(country);
+            return savedCountry.getId();
+        } catch (Exception e) {
+            logger.info(e.toString());
+            return 0L;
+        }
     }
 
     public List<Country> getAllCountries() {
@@ -28,6 +35,14 @@ public class CountriesDbService {
 
     public boolean updateCountry(Long id, Country country) {
         logger.info("updateCountry id=" + id + " country " + country.toString());
+        if (country.getId() == null) {
+            return false;
+        } else {
+            if (!country.getId().equals(id)) {
+                return false;
+            }
+        }
+
         if (countriesRepository.existsById(id)) {
             country.setId(id);
             countriesRepository.save(country);
@@ -43,5 +58,9 @@ public class CountriesDbService {
             return true;
         }
         return false;
+    }
+
+    private int getEntitiesCounterFromDb() {
+        return getAllCountries().size();
     }
 }
