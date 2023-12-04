@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -23,7 +24,6 @@ public class TemperaturesDbService {
         try {
             Long id = (long) (getEntitiesCounterFromDb() + 1);
             temperature.setId(id);
-            temperature.setTimestamp(LocalDate.now());
             Temperature savedTemperature = repository.save(temperature);
             return savedTemperature.getId();
         } catch (Exception e) {
@@ -32,22 +32,22 @@ public class TemperaturesDbService {
         }
     }
 
-    public List<Temperature> getTemperaturesByDate(LocalDate from, LocalDate until, List<Temperature> temperatures) {
+    public List<Temperature> getTemperaturesByDate(Date from, Date until, List<Temperature> temperatures) {
 
         Stream<Temperature> temperaturesStream = temperatures.stream();
 
         if (from != null) {
-            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().isAfter(from));
+            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().after(from));
         }
 
         if (until != null) {
-            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().isBefore(until));
+            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().before(until));
         }
 
         return temperaturesStream.toList();
     }
 
-    public List<Temperature> getTemperaturesByCity(Long idOras, LocalDate from, LocalDate until) {
+    public List<Temperature> getTemperaturesByCity(Long idOras, Date from, Date until) {
         logger.info("getTemperaturesByCity idOras=" + idOras + " from=" + from + " until=" + until);
         List<Temperature> temperatures = repository.findAll();
         Stream<Temperature> temperaturesStream = temperatures.stream();
@@ -58,11 +58,11 @@ public class TemperaturesDbService {
         );
 
         if (from != null) {
-            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().isAfter(from));
+            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().after(from));
         }
 
         if (until != null) {
-            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().isBefore(until));
+            temperaturesStream = temperaturesStream.filter(temperature -> temperature.getTimestamp().before(until));
         }
 
         return temperaturesStream.toList();

@@ -6,11 +6,9 @@ import acs.sprc.rest.utility.IdResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import javax.validation.Valid;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -20,16 +18,17 @@ public class TemperaturesController {
     @Autowired
     private TemperaturesService temperaturesService;
     private final Logger logger = Logger.getLogger("TemperaturesController");
-    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yy-MM-dd");
+    private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
     @PostMapping
-    public ResponseEntity<IdResponse> addTemperature(@Valid @RequestBody Temperature temperature) {
-        if (!isValid(temperature)) {
+    public ResponseEntity<IdResponse> addTemperature(@RequestBody Temperature temperature) {
+        logger.info("addTemperature " + temperature);
+        if (temperature.getIdOras() == null || temperature.getValoare() == null) {
             return ResponseEntity.status(400).build();
         }
 
         Long id = 0L;
-                ResponseEntity<IdResponse> response;
+        ResponseEntity<IdResponse> response;
         try {
             id = temperaturesService.addTemperature(temperature);
             if (id == 0) {
@@ -38,11 +37,11 @@ public class TemperaturesController {
         } catch (Exception e) {
             response = ResponseEntity.status(409).build();
             logger.info(e.toString());
-            logger.info("addTemperature " + temperature + " | response " + response);
+            logger.info(" | response " + response);
             return response;
         }
         response = ResponseEntity.status(201).body(new IdResponse(id));
-        logger.info("addTemperature " + temperature + " | response " + response);
+        logger.info(" | response " + response);
         return response;
     }
 
@@ -53,13 +52,21 @@ public class TemperaturesController {
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String until) {
 
-        LocalDate fromDate = null;
-        LocalDate untilDate = null;
+        Date fromDate = null;
+        Date untilDate = null;
         if (from != null) {
-            fromDate = convertToLocalDateViaInstant(from);
+            try {
+                fromDate = dateFormatter.parse(from);
+            } catch (ParseException e) {
+                logger.info(e.toString());
+            }
         }
         if (until != null) {
-            untilDate = convertToLocalDateViaInstant(until);
+            try {
+                untilDate = dateFormatter.parse(until);
+            } catch (ParseException e) {
+                logger.info(e.toString());
+            }
         }
 
         List<Temperature> temperatures = temperaturesService.getTemperatures(lat, lon, fromDate, untilDate);
@@ -73,13 +80,21 @@ public class TemperaturesController {
             @PathVariable Long idOras,
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String until) {
-        LocalDate fromDate = null;
-        LocalDate untilDate = null;
+        Date fromDate = null;
+        Date untilDate = null;
         if (from != null) {
-            fromDate = convertToLocalDateViaInstant(from);
+            try {
+                fromDate = dateFormatter.parse(from);
+            } catch (ParseException e) {
+                logger.info(e.toString());
+            }
         }
         if (until != null) {
-            untilDate = convertToLocalDateViaInstant(until);
+            try {
+                untilDate = dateFormatter.parse(until);
+            } catch (ParseException e) {
+                logger.info(e.toString());
+            }
         }
         List<Temperature> temperatures = temperaturesService.getTemperaturesByCity(idOras, fromDate, untilDate);
         ResponseEntity<List<Temperature>> response = ResponseEntity.status(200).body(temperatures);
@@ -92,13 +107,21 @@ public class TemperaturesController {
             @PathVariable Long idTara,
             @RequestParam(required = false) String from,
             @RequestParam(required = false) String until) {
-        LocalDate fromDate = null;
-        LocalDate untilDate = null;
+        Date fromDate = null;
+        Date untilDate = null;
         if (from != null) {
-            fromDate = convertToLocalDateViaInstant(from);
+            try {
+                fromDate = dateFormatter.parse(from);
+            } catch (ParseException e) {
+                logger.info(e.toString());
+            }
         }
         if (until != null) {
-            untilDate = convertToLocalDateViaInstant(until);
+            try {
+                untilDate = dateFormatter.parse(until);
+            } catch (ParseException e) {
+                logger.info(e.toString());
+            }
         }
         List<Temperature> temperatures = temperaturesService.getTemperaturesByCountry(idTara, fromDate, untilDate);
         ResponseEntity<List<Temperature>> response = ResponseEntity.status(200).body(temperatures);
@@ -107,9 +130,9 @@ public class TemperaturesController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateTemperature(@PathVariable Long id, @Valid @RequestBody Temperature temperature) {
-        if (!isValid(temperature)) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<Void> updateTemperature(@PathVariable Long id, @RequestBody Temperature temperature) {
+        if (temperature.getIdOras() == null || temperature.getValoare() == null) {
+            return ResponseEntity.status(400).build();
         }
 
         ResponseEntity<Void> response;
@@ -132,20 +155,5 @@ public class TemperaturesController {
         }
         logger.info("deleteTemperature id=" + id + " | response " + response);
         return response;
-    }
-
-    boolean isValid(Temperature temperature) {
-        return temperature.getIdOras() != null && temperature.getValoare() != null;
-    }
-
-    public LocalDate convertToLocalDateViaInstant(String string) {
-        try {
-            return dateFormatter.parse(string).toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDate();
-        } catch (ParseException e) {
-            logger.info("DATE " + string + " IS NULL ==> " + e);
-        }
-        return null;
     }
 }

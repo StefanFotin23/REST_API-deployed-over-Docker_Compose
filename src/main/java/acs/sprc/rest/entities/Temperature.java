@@ -1,12 +1,11 @@
 package acs.sprc.rest.entities;
 
+import acs.sprc.rest.utility.TemperatureSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.cglib.core.Local;
-
-import java.time.LocalDate;
+import java.util.Date;
 import javax.validation.constraints.NotNull;
 
 @Getter
@@ -14,8 +13,8 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@Table(name = "temperatures", schema = "meteo_data", uniqueConstraints = @UniqueConstraint(columnNames = {"id_oras" , "timestamp"}))
-@JsonSerialize
+@Table(name = "temperatures", schema = "meteo_data")
+@JsonSerialize(using = TemperatureSerializer.class)
 @JsonDeserialize
 @Entity
 public class Temperature {
@@ -32,5 +31,5 @@ public class Temperature {
     private Double valoare;
 
     @Column(name = "timestamp")
-    private LocalDate timestamp = LocalDate.now();
+    private Date timestamp = new Date();
 }

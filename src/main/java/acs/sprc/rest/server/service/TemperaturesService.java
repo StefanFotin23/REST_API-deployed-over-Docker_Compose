@@ -21,15 +21,15 @@ public class TemperaturesService {
         return dbService.addTemperature(temperature);
     }
 
-    public List<Temperature> getTemperatures(Double lat, Double lon, LocalDate from, LocalDate until) {
+    public List<Temperature> getTemperatures(Double lat, Double lon, Date from, Date until) {
         return dbService.getTemperatures(lat, lon, from, until);
     }
 
-    public List<Temperature> getTemperaturesByCity(Long idOras, LocalDate from, LocalDate until) {
+    public List<Temperature> getTemperaturesByCity(Long idOras, Date from, Date until) {
         return dbService.getTemperaturesByCity(idOras, from, until);
     }
 
-    public List<Temperature> getTemperaturesByCountry(Long idTara, LocalDate from, LocalDate until) {
+    public List<Temperature> getTemperaturesByCountry(Long idTara, Date from, Date until) {
         return dbService.getTemperaturesByCountry(idTara, from, until);
     }
 
