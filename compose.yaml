@@ -26,12 +26,13 @@ services:
   # Database
   database:
     build:
-      context: .
+      context: ./DB
       dockerfile: Dockerfile-database
     ports:
       - "3306:3306"
     networks:
       - server-backend
+      - client
     volumes:
       - database-data:/var/lib/mysql
     command: --init-file /db/init.sql
@@ -50,7 +51,7 @@ services:
       ADMINER_DEFAULT_PASSWORD: root
       ADMINER_DEFAULT_DATABASE: meteo_data
     networks:
-      - server-backend
+      - client
 
 volumes:
   database-data:

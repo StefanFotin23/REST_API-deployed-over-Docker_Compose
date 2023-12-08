@@ -1,0 +1,6 @@
+# Ignore everything
+*
+
+# Except specified files and directories
+!target/rest-1.0.jar
+!Dockerfile-server
